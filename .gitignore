@@ -228,7 +228,7 @@ __marimo__/
 # Raw / generated data
 data/raw/
 data/processed/
-web/data/
+map/data/
 
 # Shapefile sidecars / large GIS files
 *.shp

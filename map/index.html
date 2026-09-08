@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Mapbox GL JS CSS -->
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.26.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Mapbox GL JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.26.0/mapbox-gl.js"></script>
+
+    <!-- Load Lodash from jsDelivr -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.18.1/lodash.min.js"></script>
+
+    <title>Triangle Primary Election Maps</title>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <div id="map-info">
+      <label for="contest-select" class="contest-select-label"> Contest </label>
+
+      <select id="contest-select"></select>
+      <div id="map-title">
+        <div class="map-kicker">
+          NORTH CAROLINA PRIMARY ELECTION · MARCH 3, 2026
+        </div>
+        <h1 id="contest-title"></h1>
+        <div id="contest-subtitle" class="map-subtitle"></div>
+      </div>
+      <div id="legend">
+        <div class="legend-section">
+          <div id="candidate-legend"></div>
+        </div>
+
+        <div class="legend-section">
+          <strong>Other precincts</strong>
+
+          <div class="status-row">
+            <span class="status-swatch" style="background: #355059"></span>
+            <span>Tie</span>
+          </div>
+
+          <div class="status-row">
+            <span class="status-swatch" style="background: #71878e"></span>
+            <span>Zero votes</span>
+          </div>
+
+          <div class="status-row">
+            <span class="status-swatch" style="background: #adb9bd"></span>
+            <span>Did not participate</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="source">
+      Source: North Carolina State Board of Elections · March 3, 2026 Primary
+      Election
+    </div>
+    <script type="module" src="js/contests.js"></script>
+    <script type="module" src="js/map.js"></script>
+  </body>
+</html>

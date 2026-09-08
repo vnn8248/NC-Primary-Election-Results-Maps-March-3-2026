@@ -1,0 +1,318 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Hide things that aren't essential on narrow screens: */
+@media (max-width: 500px) {
+  .map-kicker {
+    display: none;
+  }
+
+  .mapboxgl-ctrl-scale {
+    display: none;
+  }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  #map-info {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+
+    width: auto;
+
+    max-height: 42%;
+  }
+
+  #map-title,
+  #legend {
+    padding: 12px;
+    border: black 1px solid;
+  }
+
+  #map-title h1 {
+    font-size: 19px;
+  }
+
+  .mapboxgl-popup {
+    max-width: calc(100vw - 30px) !important;
+  }
+}
+
+/* Desktop */
+#map-info {
+  position: absolute;
+  z-index: 10;
+
+  top: 20px;
+  left: 20px;
+
+  width: 290px;
+  max-height: calc(100% - 40px);
+
+  overflow-y: auto;
+
+  font-family: Arial, sans-serif;
+}
+
+#map-title,
+#legend {
+  background: rgba(255, 255, 255, 0.96);
+  padding: 16px;
+}
+
+#contest-select {
+  width: 100%;
+
+  margin-top: 5px;
+  margin-bottom: 14px;
+
+  padding: 8px 10px;
+
+  font: inherit;
+
+  background: white;
+
+  border: 1px solid #bbb;
+  border-radius: 3px;
+}
+
+.map-kicker {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: #666;
+}
+
+#map-title h1 {
+  margin: 4px 0 0 0;
+  font-size: 24px;
+}
+
+.map-subtitle {
+  font-size: 13px;
+  color: #555;
+}
+
+#legend {
+  margin-top: 8px;
+}
+
+#legend h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.subtitle {
+  margin-top: 3px;
+  margin-bottom: 18px;
+  color: #666;
+  font-size: 12px;
+}
+
+.legend-section {
+  margin-bottom: 20px;
+}
+
+.legend-section strong {
+  display: block;
+  margin-bottom: 9px;
+}
+
+#source {
+  position: absolute;
+  z-index: 10;
+
+  bottom: 10px;
+  left: 20px;
+
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+
+  color: #555;
+
+  background: rgba(255, 255, 255, 0.85);
+
+  padding: 4px 6px;
+}
+
+.popup {
+  font-family: Arial, sans-serif;
+  min-width: 260px;
+}
+
+.popup-county {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #666;
+  margin-bottom: 3px;
+}
+
+.popup h3 {
+  margin: 0 0 12px 0;
+  font-size: 17px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.results-table th {
+  text-align: right;
+  font-weight: 600;
+  color: #666;
+  padding: 5px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.results-table th:first-child {
+  text-align: left;
+}
+
+.results-table td {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.results-table td:not(:first-child) {
+  text-align: right;
+}
+
+.results-table td:first-child {
+  padding-right: 12px;
+}
+
+.contest-winner {
+  font-weight: 700;
+}
+
+.candidate-result-header,
+.candidate-result-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  column-gap: 14px;
+  align-items: baseline;
+  font-size: 14px;
+}
+
+.candidate-result-header {
+  margin-bottom: 8px;
+  font-weight: 700;
+  text-decoration: underline;
+  color: #666;
+}
+
+.candidate-result-header span:nth-child(2),
+.candidate-result-header span:nth-child(3),
+.candidate-total,
+.candidate-share {
+  text-align: right;
+}
+
+.candidate-legend-row {
+  margin-bottom: 14px;
+}
+
+.candidate-result-row {
+  margin-bottom: 5px;
+}
+
+.candidate-legend-row {
+  margin-top: 14px;
+}
+
+.candidate-result-row {
+  margin-bottom: 6px;
+}
+
+.candidate-share {
+  margin-left: 4px;
+}
+
+.candidate-scale {
+  margin-top: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.margin-bin {
+  margin-right: 10px;
+}
+
+.candidate-swatch {
+  display: block;
+  width: 34px;
+  height: 15px;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.margin-label {
+  display: block;
+  margin-top: 3px;
+  text-align: center;
+  font-size: 9px;
+  color: #666;
+}
+
+/* Explanation */
+
+.margin-explanation {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.margin-arrow-scale {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.arrow-swatch {
+  display: block;
+  width: 28px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.arrow-line {
+  margin-left: 3px;
+  font-size: 20px;
+  line-height: 14px;
+}
+
+.margin-explanation-text {
+  margin-top: 6px;
+  max-width: 210px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #666;
+}
+
+/* Other precinct statuses */
+
+.status-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.status-swatch {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  border-radius: 2px;
+}

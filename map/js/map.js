@@ -15,7 +15,7 @@ const northCarolinaBounds = [
 
 const map = new mapboxgl.Map({
   accessToken:
-    "pk.eyJ1Ijoidm5uODI0OCIsImEiOiJja21jY21kZ2owNHJwMm9wMnN1MW1weHBvIn0.iVbVfO8g55_PijI4265GNw",
+    "pk.eyJ1Ijoidm5uODI0OCIsImEiOiJjbXR0NThjOWgwNjJ6MnptenMyMTZ1YXlwIn0.mrPMMzcCJNZqwzaruOdiIQ",
 
   container: "map",
 

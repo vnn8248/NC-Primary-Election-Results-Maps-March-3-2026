@@ -2,7 +2,7 @@ const contests = {
   us_house_of_representatives_district_04_dem: {
     title: "U.S. House District 4",
     subtitle: "Democratic Primary",
-    data: "data/us_house_of_representatives_district_04_dem.geojson",
+    data: "map_data/us_house_of_representatives_district_04_dem.geojson",
     bounds: [
       [-79.37018899068106, 35.54047599983429],
       [-78.69931599106128, 36.243444999723174],
@@ -33,7 +33,7 @@ const contests = {
   nc_state_senate_district_17_rep: {
     title: "N.C. State Senate District 17",
     subtitle: "Republican Primary",
-    data: "data/nc_state_senate_district_17_rep.geojson",
+    data: "map_data/nc_state_senate_district_17_rep.geojson",
     bounds: [
       [-78.95593299087653, 35.62147399985783],
       [-78.74121599094627, 35.92755199976352],
@@ -58,7 +58,7 @@ const contests = {
   nc_state_senate_district_18_rep: {
     title: "N.C. State Senate District 18",
     subtitle: "Republican Primary",
-    data: "data/nc_state_senate_district_18_rep.geojson",
+    data: "map_data/nc_state_senate_district_18_rep.geojson",
     bounds: [
       [-78.80762299092058, 35.783509999663366],
       [-78.25371099138387, 36.54254100036947],
@@ -83,7 +83,7 @@ const contests = {
   nc_house_of_representatives_district_035_rep: {
     title: "N.C. House District 35",
     subtitle: "Republican Primary",
-    data: "data/nc_house_of_representatives_district_035_rep.geojson",
+    data: "map_data/nc_house_of_representatives_district_035_rep.geojson",
     bounds: [
       [-78.75428399092935, 35.78358200027878],
       [-78.31048799160175, 36.076442999977246],
@@ -108,7 +108,7 @@ const contests = {
   us_senate_rep_contest_summary: {
     title: "U.S. Senate Republican Primary",
     subtitle: "Republican Primary",
-    data: "data/us_senate_rep.geojson",
+    data: "map_data/us_senate_rep.geojson",
     bounds: [
       [-84.3218209914704, 33.75287799999573],
       [-75.4001189911457, 36.588136999894786],
@@ -163,7 +163,7 @@ const contests = {
   us_senate_dem_contest_summary: {
     title: "U.S. Senate Democratic Primary",
     subtitle: "Democratic Primary",
-    data: "data/us_senate_dem.geojson",
+    data: "map_data/us_senate_dem.geojson",
     bounds: [
       [-84.3218209914704, 33.75287799999573],
       [-75.4001189911457, 36.588136999894786],
@@ -212,7 +212,7 @@ const contests = {
   durham_county_sheriff_dem: {
     title: "Durham County Sheriff",
     subtitle: "Democratic Primary",
-    data: "data/durham_county_sheriff_dem.geojson",
+    data: "map_data/durham_county_sheriff_dem.geojson",
     bounds: [
       [-79.01630499067694, 35.8632100000935],
       [-78.69931599106128, 36.239319999857365],
@@ -237,7 +237,7 @@ const contests = {
   durham_county_board_of_education_district_02: {
     title: "Durham County Board Of Education District 02",
     subtitle: "Vote For 1",
-    data: "data/durham_county_board_of_education_district_02.geojson",
+    data: "map_data/durham_county_board_of_education_district_02.geojson",
     bounds: [
       [-78.9583799916683, 35.90250000038127],
       [-78.8857599916494, 36.03723999993787],

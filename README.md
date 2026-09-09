@@ -1,8 +1,8 @@
-North Carolina Primary Election Maps - March 3, 2026
+# North Carolina Primary Election Results Maps - March 3, 2026
 
-Reusable precinct-level election mapping pipelines for the North Carolina primary election on March 3, 2026.
+Reusable precinct-level election mapping pipelines for the North Carolina primary election results on March 3, 2026.
 
-The project processes North Carolina election results and precinct geography into GeoJSON files for interactive Mapbox maps.
+This project processes North Carolina election results and precinct geography into GeoJSON files for interactive Mapbox maps.
 
 ## Project structure
 
@@ -10,8 +10,11 @@ The project processes North Carolina election results and precinct geography int
 - `pipelines/` — contest-scope pipelines
 - `notebooks/` — exploration and diagnostics
 - `data/crosswalks/` — reviewed precinct ID crosswalks
-- `map/` — Mapbox map and frontend files
 - `docs/` — methodology and data documentation
+- `js/` - Mapbox GL JS scripts
+- `css/` - styles for maps
+- `index.html` - interactive web page
+- `map_data` - GeoJSON files used to build interactive maps
 
 ## Current pipelines
 

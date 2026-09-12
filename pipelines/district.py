@@ -11,7 +11,6 @@ from src.precinct_crosswalk import apply_crosswalk
 from src.load_geography import load_geography
 from src.join_geography import join_precinct_geography
 from src.export_geojson import export_geojson
-import pandas as pd
 
 
 def build_district_map(

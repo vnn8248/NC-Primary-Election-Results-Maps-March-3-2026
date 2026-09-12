@@ -616,7 +616,3 @@ document.getElementById("contest-select").addEventListener("change", (e) => {
     });
   }
 });
-
-document.getElementById("contest-select").addEventListener("change", (e) => {
-  loadContest(e.target.value);
-});

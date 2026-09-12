@@ -1,30 +1,3 @@
-function hexToRgb(hex) {
-  hex = hex.replace("#", "");
-
-  return {
-    r: parseInt(hex.substring(0, 2), 16),
-    g: parseInt(hex.substring(2, 4), 16),
-    b: parseInt(hex.substring(4, 6), 16),
-  };
-}
-
-function rgbToHex(r, g, b) {
-  return (
-    "#" +
-    [r, g, b].map((x) => Math.round(x).toString(16).padStart(2, "0")).join("")
-  );
-}
-
-function lightenColor(hex, amount) {
-  const rgb = hexToRgb(hex);
-
-  return rgbToHex(
-    rgb.r + (255 - rgb.r) * amount,
-    rgb.g + (255 - rgb.g) * amount,
-    rgb.b + (255 - rgb.b) * amount,
-  );
-}
-
 function createColorExpression(candidates) {
   const expression = [
     "case",
@@ -69,4 +42,4 @@ function createColorExpression(candidates) {
   return expression;
 }
 
-export { createColorExpression, lightenColor };
+export { createColorExpression };

@@ -34,6 +34,21 @@ function countyDisplayName(county) {
     .join(" ");
 }
 
+// Fetched once and reused both as the county-borders source data and
+// as the shapes behind the focus mask, rather than fetching this
+// (large) file twice.
+const countyBordersPromise = fetch("map_data/county_borders.geojson").then(
+  (response) => response.json(),
+);
+
+let countyFeaturesByName = null;
+
+countyBordersPromise.then((data) => {
+  countyFeaturesByName = new Map(
+    data.features.map((feature) => [feature.properties.county_nam, feature]),
+  );
+});
+
 const countyFilter = getCountyFilter();
 
 let contestId = "nc_state_senate_district_18_rep";
@@ -85,7 +100,7 @@ const map = new mapboxgl.Map({
   maxZoom: 16,
 });
 
-map.on("load", () => {
+map.on("load", async () => {
   buildContestSelector();
   // 1. Customize basemap
 
@@ -95,10 +110,13 @@ map.on("load", () => {
     data: contest.data,
   });
 
-  // 2b. Add county borders source
+  // 2b. Add county borders source (reusing the same fetch the focus
+  // mask uses, rather than letting Mapbox fetch this large file again)
+  const countyBordersData = await countyBordersPromise;
+
   map.addSource("counties", {
     type: "geojson",
-    data: "map_data/county_borders.geojson",
+    data: countyBordersData,
   });
 
   // 3. Add precinct fill
@@ -298,6 +316,30 @@ map.on("load", () => {
 
   setCountyBordersEmphasis(contest.participatingCounties);
 
+  // 5b. Add a focus mask: a translucent veil over everything outside
+  // the current contest's bounds, so roads/labels/basemap outside the
+  // contest area read as quieter background instead of competing with
+  // the precinct choropleth. Sits above roads/labels/county-borders
+  // (added last, so it renders on top of them), but has no effect
+  // where there's no hole cut in it — see updateFocusMask.
+  map.addSource("focus-mask", {
+    type: "geojson",
+    data: EMPTY_FEATURE_COLLECTION,
+  });
+
+  map.addLayer({
+    id: "focus-mask",
+    type: "fill",
+    source: "focus-mask",
+
+    paint: {
+      "fill-color": "#f4f3f1",
+      "fill-opacity": 0.65,
+    },
+  });
+
+  updateFocusMask(contest);
+
   // 6. Other map setup
   map.on("mouseenter", "precinct-fills", (e) => {
     map.getCanvas().style.cursor = "pointer";
@@ -421,6 +463,83 @@ function setCountyBordersEmphasis(participatingCounties) {
     0.8,
     0.2,
   ]);
+}
+
+const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
+
+// Generous box around North Carolina — the outer ring of the focus
+// mask. Only its extent matters (it just needs to cover the visible
+// map at any zoom the app allows), not precision.
+const FOCUS_MASK_OUTER_BBOX = [-90, 30, -70, 40];
+
+// A county polygon's exterior ring(s), reversed so the fill renderer
+// treats them as holes (cutouts) rather than filled area.
+function exteriorRingsAsHoles(geometry) {
+  if (geometry.type === "Polygon") {
+    return [geometry.coordinates[0].slice().reverse()];
+  }
+
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates.map((polygon) => polygon[0].slice().reverse());
+  }
+
+  return [];
+}
+
+// The spotlight hole is the exact union shape of the participating
+// counties — same source data as the county-borders layer, so the
+// mask edge lines up with the county border line itself.
+function focusMaskFeature(participatingCounties) {
+  if (!countyFeaturesByName) return null;
+
+  const [outerWest, outerSouth, outerEast, outerNorth] = FOCUS_MASK_OUTER_BBOX;
+
+  const outerRing = [
+    [outerWest, outerSouth],
+    [outerEast, outerSouth],
+    [outerEast, outerNorth],
+    [outerWest, outerNorth],
+    [outerWest, outerSouth],
+  ];
+
+  const holes = participatingCounties.flatMap((county) => {
+    const feature = countyFeaturesByName.get(county);
+
+    return feature ? exteriorRingsAsHoles(feature.geometry) : [];
+  });
+
+  if (holes.length === 0) return null;
+
+  return {
+    type: "Feature",
+    properties: {},
+    geometry: {
+      type: "Polygon",
+      coordinates: [outerRing, ...holes],
+    },
+  };
+}
+
+function updateFocusMask(contest) {
+  const source = map.getSource("focus-mask");
+
+  if (!source) return;
+
+  // Statewide contests: every county is in play, nothing to mute.
+  if (!contest.participatingCounties) {
+    source.setData(EMPTY_FEATURE_COLLECTION);
+    return;
+  }
+
+  // County shapes may not have finished loading yet — retry once they have.
+  if (!countyFeaturesByName) {
+    countyBordersPromise.then(() => updateFocusMask(contest));
+    return;
+  }
+
+  const feature = focusMaskFeature(contest.participatingCounties);
+
+  source.setData(feature || EMPTY_FEATURE_COLLECTION);
 }
 
 function buildContestSelector() {
@@ -717,6 +836,7 @@ async function loadContest(id) {
   );
 
   setCountyBordersEmphasis(contest.participatingCounties);
+  updateFocusMask(contest);
 
   // Update title
   document.getElementById("contest-title").textContent = contest.title;

@@ -36,7 +36,7 @@ function countyDisplayName(county) {
 
 const countyFilter = getCountyFilter();
 
-let contestId = "nc_state_senate_district_18_rep";
+let contestId = "nc_court_of_appeals_judge_seat_01_rep";
 
 if (countyFilter && !contestMatchesCounty(contests[contestId], countyFilter)) {
   const firstMatch = Object.keys(contests).find((id) =>
@@ -387,14 +387,22 @@ map.on("load", () => {
   // lets Mapbox render the first frame's labels with the base style's
   // default colors, which can stick until the next zoom/pan forces a
   // re-render.
-  const triangleBounds = [
-    [-79.25, 35.55], // southwest
-    [-78.45, 36.25], // northeast
-  ];
-
-  map.fitBounds(triangleBounds, {
-    padding: 40,
-  });
+  //
+  // Uses the default contest's own bounds (same padding as switching
+  // contests via the dropdown) rather than a fixed region, so the
+  // initial view is always correct for whichever contest `contestId`
+  // is set to.
+  if (contest.bounds) {
+    map.fitBounds(contest.bounds, {
+      padding: {
+        top: 60,
+        bottom: 60,
+        left: 340,
+        right: 60,
+      },
+      maxZoom: 11,
+    });
+  }
 });
 
 // Highlight precinct border on hover

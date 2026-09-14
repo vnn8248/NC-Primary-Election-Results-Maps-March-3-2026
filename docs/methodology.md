@@ -2,9 +2,20 @@
 
 ## Precinct results
 
-Election results are filtered to real precinct reporting units before aggregation.
+Precinct-level results are filtered to real precinct reporting units
+(`real_precinct == "Y"`) before aggregation, since non-real-precinct
+rows (absentee by mail, provisional, transfer, etc.) have no matching
+precinct polygon to map to.
 
 Candidate votes are summed within each county and precinct.
+
+## Contest-level results
+
+Contest-level summaries (the per-contest CSV totals) include both
+real and non-real precinct rows, so they match official reported
+contest totals. As a result, the sum of precinct-level `contest_votes`
+in the map data will be lower than the contest-level total by the
+number of non-real-precinct votes.
 
 For each precinct, the pipeline calculates:
 

@@ -1,5 +1,5 @@
 import { contests } from "./contests.js";
-import { createColorExpression, lightenColor } from "./colors.js";
+import { createColorExpression } from "./colors.js";
 
 let contestId = "nc_state_senate_district_18_rep";
 

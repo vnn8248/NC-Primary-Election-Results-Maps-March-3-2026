@@ -14,19 +14,19 @@ const contests = {
     },
     results: [
       {
-        candidate: "Nida Allam",
-        votes: 33684,
-        share: 49.978485689274,
+        candidate: "Valerie P. Foushee",
+        votes: 61776,
+        share: 49.16318491106602,
       },
       {
-        candidate: "Valerie P. Foushee",
-        votes: 31760,
-        share: 47.12375921776933,
+        candidate: "Nida Allam",
+        votes: 60605,
+        share: 48.23126815486849,
       },
       {
         candidate: "Mary Patterson",
-        votes: 1953,
-        share: 2.89775509295666,
+        votes: 3274,
+        share: 2.605546934065497,
       },
     ],
   },
@@ -45,13 +45,13 @@ const contests = {
     results: [
       {
         candidate: "Shirley Johnson",
-        votes: 2906,
-        share: 90.926158,
+        votes: 4331,
+        share: 90.09777407946744,
       },
       {
         candidate: "Sarah Al-Baghdadi",
-        votes: 290,
-        share: 9.073842,
+        votes: 476,
+        share: 9.902225920532556,
       },
     ],
   },
@@ -70,13 +70,13 @@ const contests = {
     results: [
       {
         candidate: "Chris Stock",
-        votes: 6048,
-        share: 61.632528278813815,
+        votes: 7636,
+        share: 60.564720812182735,
       },
       {
         candidate: "Cheryl Caulfield",
-        votes: 3765,
-        share: 38.367471721186185,
+        votes: 4972,
+        share: 39.43527918781726,
       },
     ],
   },
@@ -95,17 +95,17 @@ const contests = {
     results: [
       {
         candidate: "Mike Schietzelt",
-        votes: 3242,
-        share: 91.22115925717502,
+        votes: 5047,
+        share: 90.98611862267892,
       },
       {
         candidate: "Michele Joyner-Dinwiddie",
-        votes: 312,
-        share: 8.77884074282498,
+        votes: 500,
+        share: 9.013881377321074,
       },
     ],
   },
-  us_senate_rep_contest_summary: {
+  us_senate_rep: {
     title: "U.S. Senate Republican Primary",
     subtitle: "Republican Primary",
     data: "map_data/us_senate_rep.geojson",
@@ -125,42 +125,42 @@ const contests = {
     results: [
       {
         candidate: "Michael Whatley",
-        votes: 340816,
-        share: 64.647905,
+        votes: 405140,
+        share: 64.57402247993318,
       },
       {
         candidate: "Donald M. (Don) Brown",
-        votes: 82382,
-        share: 15.626683,
+        votes: 97891,
+        share: 15.602546365659128,
       },
       {
         candidate: "Thomas Johnson",
-        votes: 29501,
-        share: 5.595916,
+        votes: 35534,
+        share: 5.6636553161918,
       },
       {
         candidate: "Michele Morrow",
-        votes: 29371,
-        share: 5.571257,
+        votes: 35065,
+        share: 5.588902844100452,
       },
       {
         candidate: "Elizabeth A. Temple",
-        votes: 20047,
-        share: 3.802628,
+        votes: 23892,
+        share: 3.8080726294381297,
       },
       {
         candidate: "Richard Dansie",
-        votes: 12654,
-        share: 2.400282,
+        votes: 14996,
+        share: 2.3901664637139706,
       },
       {
         candidate: "Margot Dupre",
-        votes: 12417,
-        share: 2.355327,
+        votes: 14886,
+        share: 2.3726339009633346,
       },
     ],
   },
-  us_senate_dem_contest_summary: {
+  us_senate_dem: {
     title: "U.S. Senate Democratic Primary",
     subtitle: "Democratic Primary",
     data: "map_data/us_senate_dem.geojson",
@@ -179,33 +179,33 @@ const contests = {
     results: [
       {
         candidate: "Roy Cooper",
-        votes: 577401,
-        share: 91.35600299983861,
+        votes: 761345,
+        share: 91.97709467173256,
       },
       {
         candidate: "Justin E. Dues",
-        votes: 18171,
-        share: 2.8750035599350667,
+        votes: 22295,
+        share: 2.6934298192097903,
       },
       {
         candidate: "Marcus W. Williams",
-        votes: 16809,
-        share: 2.6595088238923856,
+        votes: 20336,
+        share: 2.456765588851774,
       },
       {
         candidate: "Daryl Farrow",
-        votes: 8250,
-        share: 1.3053095244876067,
+        votes: 9727,
+        share: 1.1751061606393196,
       },
       {
         candidate: "Orrick Quick",
-        votes: 5908,
-        share: 0.9347598388694278,
+        votes: 7275,
+        share: 0.8788832444382697,
       },
       {
         candidate: "Robert Colon",
-        votes: 5495,
-        share: 0.8694152529768968,
+        votes: 6777,
+        share: 0.8187205151282686,
       },
     ],
   },
@@ -224,13 +224,13 @@ const contests = {
     results: [
       {
         candidate: "Clarence F. Birkhead",
-        votes: 22807,
-        share: 83.71691810740374,
+        votes: 49914,
+        share: 85.75257271462195,
       },
       {
         candidate: "Johnny D. Hawkins",
-        votes: 4436,
-        share: 16.283081892596265,
+        votes: 8293,
+        share: 14.247427285378048,
       },
     ],
   },
@@ -251,23 +251,23 @@ const contests = {
     results: [
       {
         candidate: "Nadeen Bir",
-        votes: 5163,
-        share: 65.09077155824508,
+        votes: 9415,
+        share: 61.23975543124756,
       },
       {
         candidate: "Bettina Umstead",
-        votes: 1860,
-        share: 23.44931921331316,
+        votes: 4169,
+        share: 27.1172108755041,
       },
       {
         candidate: "Rachel Waltz",
-        votes: 879,
-        share: 11.081694402420576,
+        votes: 1691,
+        share: 10.99908937166645,
       },
       {
         candidate: "Write-In (Miscellaneous)",
-        votes: 30,
-        share: 0.37821482602118006,
+        votes: 99,
+        share: 0.6439443215818915,
       },
     ],
   },

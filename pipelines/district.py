@@ -32,6 +32,12 @@ def build_district_map(
     results = load_results(results_file)
     results = clean_results(results)
 
+    contest_all = filter_contest(
+        results,
+        contest_name,
+        real_precincts_only=False,
+    )
+
     contest = filter_contest(
         results,
         contest_name,
@@ -41,7 +47,7 @@ def build_district_map(
         contest
     )
 
-    contest_results = summarize_contest_results(contest)
+    contest_results = summarize_contest_results(contest_all)
 
     contest_results.to_csv(contest_summary_file, index=False)
 

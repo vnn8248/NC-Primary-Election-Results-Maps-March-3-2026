@@ -11,44 +11,6 @@ body {
   height: 100%;
 }
 
-/* Hide things that aren't essential on narrow screens: */
-@media (max-width: 500px) {
-  .map-kicker {
-    display: none;
-  }
-
-  .mapboxgl-ctrl-scale {
-    display: none;
-  }
-}
-
-/* Mobile */
-@media (max-width: 700px) {
-  #map-info {
-    top: 10px;
-    left: 10px;
-    right: 10px;
-
-    width: auto;
-
-    max-height: 42%;
-  }
-
-  #map-title,
-  #legend {
-    padding: 12px;
-    border: black 1px solid;
-  }
-
-  #map-title h1 {
-    font-size: 19px;
-  }
-
-  .mapboxgl-popup {
-    max-width: calc(100vw - 30px) !important;
-  }
-}
-
 /* Desktop */
 #map-info {
   position: absolute;
@@ -303,4 +265,48 @@ body {
   height: 18px;
   margin-right: 8px;
   border-radius: 2px;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  #map-info {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+
+    width: auto;
+
+    max-height: 42%;
+  }
+
+  /* #map-info covers the top of the screen at this width, so push the
+     zoom/compass control below it instead of letting them overlap. */
+  .mapboxgl-ctrl-top-right {
+    top: calc(42% + 20px);
+  }
+
+  #map-title,
+  #legend {
+    padding: 12px;
+    border: black 1px solid;
+  }
+
+  #map-title h1 {
+    font-size: 19px;
+  }
+
+  .mapboxgl-popup {
+    max-width: calc(100vw - 30px) !important;
+  }
+}
+
+/* Hide things that aren't essential on narrow screens: */
+@media (max-width: 500px) {
+  .map-kicker {
+    display: none;
+  }
+
+  .mapboxgl-ctrl-scale {
+    display: none;
+  }
 }

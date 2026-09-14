@@ -1,9 +1,62 @@
 import { contests } from "./contests.js";
 import { createColorExpression } from "./colors.js";
 
+const SCOPE_ORDER = ["statewide", "district", "countywide", "local_district"];
+
+const SCOPE_LABELS = {
+  statewide: "Statewide",
+  district: "Districts",
+  countywide: "County-wide",
+  local_district: "County Districts",
+};
+
+function getCountyFilter() {
+  const params = new URLSearchParams(window.location.search);
+  const county = params.get("county");
+
+  return county ? county.trim().toUpperCase() : null;
+}
+
+function contestMatchesCounty(config, county) {
+  if (!county) return true;
+
+  // Statewide contests have every county participating.
+  if (config.participatingCounties === null) return true;
+
+  return config.participatingCounties.includes(county);
+}
+
+function countyDisplayName(county) {
+  return county
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+const countyFilter = getCountyFilter();
+
 let contestId = "nc_state_senate_district_18_rep";
 
+if (countyFilter && !contestMatchesCounty(contests[contestId], countyFilter)) {
+  const firstMatch = Object.keys(contests).find((id) =>
+    contestMatchesCounty(contests[id], countyFilter),
+  );
+
+  if (firstMatch) {
+    contestId = firstMatch;
+  }
+}
+
 let contest = contests[contestId];
+
+if (countyFilter) {
+  const label = document.querySelector(".contest-select-label");
+
+  if (label) {
+    label.textContent = `Contests in ${countyDisplayName(countyFilter)} County`;
+  }
+}
 
 // Clicking on precinct to show popup and clicking again to disable popup
 let activePopup = null;
@@ -243,6 +296,8 @@ map.on("load", () => {
   // Keep county borders above precinct fills, but below roads/labels
   map.moveLayer("county-borders", "major-roads");
 
+  setCountyBordersEmphasis(contest.participatingCounties);
+
   // 6. Other map setup
   map.on("mouseenter", "precinct-fills", (e) => {
     map.getCanvas().style.cursor = "pointer";
@@ -332,19 +387,76 @@ document.getElementById("contest-title").textContent = contest.title;
 
 document.getElementById("contest-subtitle").textContent = contest.subtitle;
 
+function setCountyBordersEmphasis(participatingCounties) {
+  if (!map.getLayer("county-borders")) return;
+
+  // Statewide contest (or no contest context): every county is equal.
+  if (!participatingCounties) {
+    map.setPaintProperty("county-borders", "line-width", 1.25);
+    map.setPaintProperty("county-borders", "line-opacity", 0.55);
+    return;
+  }
+
+  const isParticipating = [
+    "in",
+    ["get", "county_nam"],
+    ["literal", participatingCounties],
+  ];
+
+  map.setPaintProperty("county-borders", "line-width", [
+    "case",
+    isParticipating,
+    1.75,
+    0.5,
+  ]);
+
+  map.setPaintProperty("county-borders", "line-opacity", [
+    "case",
+    isParticipating,
+    0.8,
+    0.2,
+  ]);
+}
+
 function buildContestSelector() {
   const select = document.getElementById("contest-select");
 
   select.innerHTML = "";
 
+  const grouped = new Map();
+
   for (const [id, config] of Object.entries(contests)) {
-    const option = document.createElement("option");
+    if (!contestMatchesCounty(config, countyFilter)) continue;
 
-    option.value = id;
+    const scope = config.scope || "district";
 
-    option.textContent = `${config.title} — ${config.subtitle}`;
+    if (!grouped.has(scope)) {
+      grouped.set(scope, []);
+    }
 
-    select.appendChild(option);
+    grouped.get(scope).push([id, config]);
+  }
+
+  for (const scope of SCOPE_ORDER) {
+    const entries = grouped.get(scope);
+
+    if (!entries || entries.length === 0) continue;
+
+    const optgroup = document.createElement("optgroup");
+
+    optgroup.label = SCOPE_LABELS[scope] || scope;
+
+    for (const [id, config] of entries) {
+      const option = document.createElement("option");
+
+      option.value = id;
+
+      option.textContent = `${config.title} — ${config.subtitle}`;
+
+      optgroup.appendChild(option);
+    }
+
+    select.appendChild(optgroup);
   }
 
   select.value = contestId;
@@ -598,6 +710,8 @@ async function loadContest(id) {
     "fill-color",
     createColorExpression(contest.candidates),
   );
+
+  setCountyBordersEmphasis(contest.participatingCounties);
 
   // Update title
   document.getElementById("contest-title").textContent = contest.title;

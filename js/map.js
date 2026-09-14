@@ -129,7 +129,12 @@ map.on("load", () => {
     id: "precinct-hover",
     type: "line",
     source: "precincts",
-    filter: ["==", ["get", "participated"], true],
+    // Starts matching nothing — mousemove narrows this to a single
+    // precinct's map_key. Without this, the layer's initial filter
+    // would match every participating precinct until the first
+    // mousemove/mouseleave event narrowed it, so every precinct would
+    // show the hover outline on first load.
+    filter: ["==", ["get", "map_key"], ""],
     paint: {
       "line-color": "#333333",
       "line-width": 1,

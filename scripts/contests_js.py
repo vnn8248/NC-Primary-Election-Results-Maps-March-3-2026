@@ -1,0 +1,158 @@
+"""
+Shared read/render/write helpers for js/contests.js.
+
+An entry's `results` array (candidate/votes/share) is always safe to
+regenerate from a contest-summary CSV. Everything else
+(title/subtitle/data/bounds/candidates) is treated as authoritative
+once it exists in the file — upsert_contest only replaces `results`
+for a key that's already present, and inserts a brand new full entry
+for a key that isn't.
+"""
+
+import json
+import re
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CONTESTS_JS = PROJECT_ROOT / "js" / "contests.js"
+
+ENTRY_KEY_PATTERN = re.compile(r"^  (\w+): \{$", flags=re.MULTILINE)
+
+
+def format_js_number(value):
+    """
+    Format a number the way JavaScript would stringify it
+    (no trailing ".0" on whole numbers).
+    """
+
+    value = float(value)
+
+    if value.is_integer():
+        return str(int(value))
+
+    return repr(value)
+
+
+def js_string(value):
+    return json.dumps(value, ensure_ascii=False)
+
+
+def entry_keys(text):
+    return set(ENTRY_KEY_PATTERN.findall(text))
+
+
+def render_results_block(results):
+    """
+    results: iterable of {"candidate", "votes", "share"}, already
+    sorted descending by votes.
+    """
+
+    lines = []
+
+    for row in results:
+        lines.append("      {")
+        lines.append(f"        candidate: {js_string(row['candidate'])},")
+        lines.append(f"        votes: {int(row['votes'])},")
+        lines.append(f"        share: {format_js_number(row['share'])},")
+        lines.append("      },")
+
+    return "\n".join(lines)
+
+
+def render_candidates_block(candidates):
+    """
+    candidates: dict of candidate name -> [dark, mid, light] colors,
+    in display order.
+    """
+
+    lines = []
+
+    for name, colors in candidates.items():
+        color_list = ", ".join(js_string(c) for c in colors)
+        lines.append(f"      {js_string(name)}: [{color_list}],")
+
+    return "\n".join(lines)
+
+
+def render_bounds_block(bounds):
+    (west, south), (east, north) = bounds
+
+    return "\n".join([
+        "    bounds: [",
+        f"      [{format_js_number(west)}, {format_js_number(south)}],",
+        f"      [{format_js_number(east)}, {format_js_number(north)}],",
+        "    ],",
+    ])
+
+
+def render_entry(key, title, subtitle, data, bounds, candidates, results):
+    return (
+        f"  {key}: {{\n"
+        f"    title: {js_string(title)},\n"
+        f"    subtitle: {js_string(subtitle)},\n"
+        f"    data: {js_string(data)},\n"
+        f"{render_bounds_block(bounds)}\n"
+        f"    candidates: {{\n"
+        f"{render_candidates_block(candidates)}\n"
+        f"    }},\n"
+        f"    results: [\n"
+        f"{render_results_block(results)}\n"
+        f"    ],\n"
+        f"  }},\n"
+    )
+
+
+def update_results(text, key, results):
+    """Replace just the `results` array for an existing entry."""
+
+    pattern = re.compile(
+        r"(\n  " + re.escape(key) + r": \{\n.*?\n    results: \[\n)"
+        r".*?"
+        r"(\n    \],\n  \},\n)",
+        flags=re.DOTALL,
+    )
+
+    match = pattern.search(text)
+
+    if not match:
+        raise ValueError(f"Could not locate a results block for '{key}' in {CONTESTS_JS}")
+
+    return (
+        text[: match.start()]
+        + match.group(1)
+        + render_results_block(results)
+        + match.group(2)
+        + text[match.end():]
+    )
+
+
+def insert_entry(text, entry_text):
+    """Insert a newly rendered entry just before the closing `};` of the contests object."""
+
+    marker = "\n};\n"
+    idx = text.index(marker)
+
+    return text[: idx + 1] + entry_text + text[idx + 1:]
+
+
+def upsert_contest(text, key, title, subtitle, data, bounds, candidates, results):
+    """
+    Update `results` in place if `key` already has an entry; otherwise
+    insert a brand new full entry.
+    """
+
+    if key in entry_keys(text):
+        return update_results(text, key, results)
+
+    entry_text = render_entry(key, title, subtitle, data, bounds, candidates, results)
+
+    return insert_entry(text, entry_text)
+
+
+def read_contests_js():
+    return CONTESTS_JS.read_text()
+
+
+def write_contests_js(text):
+    CONTESTS_JS.write_text(text)

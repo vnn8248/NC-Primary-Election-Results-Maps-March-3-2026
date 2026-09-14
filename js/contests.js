@@ -271,6 +271,55 @@ const contests = {
       },
     ],
   },
+  graham_county_sheriff_rep: {
+    title: "Graham County Sheriff",
+    subtitle: "Republican Primary",
+    data: "map_data/graham_county_sheriff_rep.geojson",
+    bounds: [
+      [-84.03888099163704, 35.216893000137176],
+      [-83.58238599085233, 35.466513999923585],
+    ],
+    candidates: {
+      "Caleb Stiles": ["#e3974e", "#eea941", "#e7c557"],
+      "Cody George": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
+      "Joseph Jones": ["#af89be", "#b29fde", "#b8b0cb"],
+      "Terry Grey": ["#3278ad", "#72a9cf", "#b7d4e8"],
+      "Leon Allen": ["#c84f4a", "#df7f7b", "#edb3b0"],
+      "Mitch Millsaps": ["#ad8731", "#d7b85d", "#ead99a"],
+    },
+    results: [
+      {
+        candidate: "Caleb Stiles",
+        votes: 655,
+        share: 33.64149974319466,
+      },
+      {
+        candidate: "Cody George",
+        votes: 490,
+        share: 25.166923472008214,
+      },
+      {
+        candidate: "Joseph Jones",
+        votes: 385,
+        share: 19.774011299435028,
+      },
+      {
+        candidate: "Terry Grey",
+        votes: 223,
+        share: 11.453518233179247,
+      },
+      {
+        candidate: "Leon Allen",
+        votes: 125,
+        share: 6.4201335387776055,
+      },
+      {
+        candidate: "Mitch Millsaps",
+        votes: 69,
+        share: 3.5439137134052388,
+      },
+    ],
+  },
 };
 
 export { contests };

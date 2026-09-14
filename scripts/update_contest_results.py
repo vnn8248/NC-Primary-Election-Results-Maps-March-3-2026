@@ -6,62 +6,46 @@ candidates hand-authored, but its `results` array (candidate, votes, share)
 is regenerated here from data/processed/<key>_contest_summary.csv so vote
 totals never have to be copy-pasted by hand.
 
+For brand new contests (no entry in contests.js yet), use
+scripts/run_contest.py instead — it runs the pipeline and creates the
+full entry (title/subtitle/bounds/candidates/results) in one step.
+
 Usage:
     python scripts/update_contest_results.py
 """
 
-import json
-import re
+import sys
 from pathlib import Path
 
 import pandas as pd
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-CONTESTS_JS = PROJECT_ROOT / "js" / "contests.js"
 
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts import contests_js
+
+
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 SUMMARY_SUFFIX = "_contest_summary.csv"
 
-ENTRY_KEY_PATTERN = re.compile(r"^  (\w+): \{$", flags=re.MULTILINE)
 
-
-def format_js_number(value):
-    """
-    Format a number the way JavaScript would stringify it
-    (no trailing ".0" on whole numbers).
-    """
-
-    value = float(value)
-
-    if value.is_integer():
-        return str(int(value))
-
-    return repr(value)
-
-
-def build_results_block(csv_file):
-    """
-    Build the inner lines of a `results: [...]` array from a
-    contest-summary CSV, matching the existing file's formatting.
-    """
-
+def results_from_csv(csv_file):
     df = pd.read_csv(csv_file)
 
-    lines = []
-
-    for _, row in df.iterrows():
-        lines.append("      {")
-        lines.append(f"        candidate: {json.dumps(row['choice'], ensure_ascii=False)},")
-        lines.append(f"        votes: {int(row['candidate_votes'])},")
-        lines.append(f"        share: {format_js_number(row['vote_share'])},")
-        lines.append("      },")
-
-    return "\n".join(lines)
+    return [
+        {
+            "candidate": row["choice"],
+            "votes": row["candidate_votes"],
+            "share": row["vote_share"],
+        }
+        for _, row in df.iterrows()
+    ]
 
 
 def update_contest_results():
-    contests_text = CONTESTS_JS.read_text()
+    text = contests_js.read_contests_js()
 
     csv_files = sorted(PROCESSED_DIR.glob(f"*{SUMMARY_SUFFIX}"))
     csv_keys = {
@@ -69,41 +53,19 @@ def update_contest_results():
         for csv_file in csv_files
     }
 
-    entry_keys = set(ENTRY_KEY_PATTERN.findall(contests_text))
+    existing_keys = contests_js.entry_keys(text)
 
-    missing_metadata = sorted(csv_keys.keys() - entry_keys)
-    stale_entries = sorted(entry_keys - csv_keys.keys())
+    missing_metadata = sorted(csv_keys.keys() - existing_keys)
+    stale_entries = sorted(existing_keys - csv_keys.keys())
 
     updated = []
 
-    for key in sorted(csv_keys.keys() & entry_keys):
-        pattern = re.compile(
-            r"(\n  " + re.escape(key) + r": \{\n.*?\n    results: \[\n)"
-            r".*?"
-            r"(\n    \],\n  \},\n)",
-            flags=re.DOTALL,
-        )
-
-        match = pattern.search(contests_text)
-
-        if not match:
-            raise ValueError(
-                f"Could not locate a results block for '{key}' in {CONTESTS_JS}"
-            )
-
-        results_block = build_results_block(csv_keys[key])
-
-        contests_text = (
-            contests_text[: match.start()]
-            + match.group(1)
-            + results_block
-            + match.group(2)
-            + contests_text[match.end():]
-        )
-
+    for key in sorted(csv_keys.keys() & existing_keys):
+        results = results_from_csv(csv_keys[key])
+        text = contests_js.update_results(text, key, results)
         updated.append(key)
 
-    CONTESTS_JS.write_text(contests_text)
+    contests_js.write_contests_js(text)
 
     print(f"Updated results for {len(updated)} contest(s):")
     for key in updated:
@@ -111,8 +73,8 @@ def update_contest_results():
 
     if missing_metadata:
         print(
-            "\nNo entry in contests.js yet — add title/subtitle/data/"
-            "bounds/candidates by hand before results can sync:"
+            "\nNo entry in contests.js yet — run scripts/run_contest.py to "
+            "create it:"
         )
         for key in missing_metadata:
             print(f"  {key}")

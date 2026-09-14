@@ -293,17 +293,25 @@ map.on("load", () => {
     },
   });
 
-  // Keep county borders above precinct fills, but below roads/labels
+  // Keep county borders above precinct fills, but below roads/labels.
+  // Styled uniformly for every county — a per-county participating/
+  // non-participating style here would double up (and look far
+  // darker/thicker than intended) on any edge shared by two
+  // participating counties, since each county's line is drawn
+  // independently and shared edges get drawn twice. The district
+  // outline below handles highlighting the contest area instead.
   map.moveLayer("county-borders", "major-roads");
-
-  setCountyBordersEmphasis(contest.participatingCounties);
 
   // 5b. Add a focus mask: a translucent veil over everything outside
   // the current contest's bounds, so roads/labels/basemap outside the
   // contest area read as quieter background instead of competing with
   // the precinct choropleth. Sits above roads/labels/county-borders
   // (added last, so it renders on top of them), but has no effect
-  // where there's no hole cut in it — see updateFocusMask.
+  // where there's no hole cut in it — see updateFocusMask. Its data is
+  // a single dissolved (seam-free) shape — see
+  // scripts/run_contest.py:compute_focus_mask — so it doubles as the
+  // source for a crisp, single district-outline line below with no
+  // risk of doubled/darkened edges.
   map.addSource("focus-mask", {
     type: "geojson",
     data: EMPTY_FEATURE_COLLECTION,
@@ -317,6 +325,18 @@ map.on("load", () => {
     paint: {
       "fill-color": "#f4f3f1",
       "fill-opacity": 0.65,
+    },
+  });
+
+  map.addLayer({
+    id: "district-outline",
+    type: "line",
+    source: "focus-mask",
+
+    paint: {
+      "line-color": "#000000",
+      "line-width": 1.75,
+      "line-opacity": 0.8,
     },
   });
 
@@ -415,37 +435,6 @@ map.addControl(
 document.getElementById("contest-title").textContent = contest.title;
 
 document.getElementById("contest-subtitle").textContent = contest.subtitle;
-
-function setCountyBordersEmphasis(participatingCounties) {
-  if (!map.getLayer("county-borders")) return;
-
-  // Statewide contest (or no contest context): every county is equal.
-  if (!participatingCounties) {
-    map.setPaintProperty("county-borders", "line-width", 1.25);
-    map.setPaintProperty("county-borders", "line-opacity", 0.55);
-    return;
-  }
-
-  const isParticipating = [
-    "in",
-    ["get", "county_nam"],
-    ["literal", participatingCounties],
-  ];
-
-  map.setPaintProperty("county-borders", "line-width", [
-    "case",
-    isParticipating,
-    1.75,
-    0.5,
-  ]);
-
-  map.setPaintProperty("county-borders", "line-opacity", [
-    "case",
-    isParticipating,
-    0.8,
-    0.2,
-  ]);
-}
 
 const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
 
@@ -829,7 +818,6 @@ async function loadContest(id) {
     createColorExpression(contest.candidates),
   );
 
-  setCountyBordersEmphasis(contest.participatingCounties);
   updateFocusMask(contest);
 
   // Update title

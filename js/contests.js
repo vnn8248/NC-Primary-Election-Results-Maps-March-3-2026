@@ -67,8 +67,8 @@ const contests = {
     scope: "district",
     data: "map_data/nc_state_senate_district_18_rep.geojson",
     bounds: [
-      [-78.80762299092058, 35.783509999663366],
-      [-78.25371099138387, 36.54254100036947],
+      [-78.80761199117887, 35.783509999663366],
+      [-78.253910991134, 36.54254100036947],
     ],
     participatingCounties: ["GRANVILLE", "WAKE"],
     focusMaskData: "map_data/nc_state_senate_district_18_rep_focus_mask.geojson",
@@ -123,7 +123,7 @@ const contests = {
     scope: "statewide",
     data: "map_data/us_senate_rep.geojson",
     bounds: [
-      [-84.3218209914704, 33.75287799999573],
+      [-84.3218209914704, 33.75289899980945],
       [-75.4001189911457, 36.588136999894786],
     ],
     participatingCounties: null,
@@ -181,7 +181,7 @@ const contests = {
     scope: "statewide",
     data: "map_data/us_senate_dem.geojson",
     bounds: [
-      [-84.3218209914704, 33.75287799999573],
+      [-84.3218209914704, 33.75289899980945],
       [-75.4001189911457, 36.588136999894786],
     ],
     participatingCounties: null,
@@ -261,8 +261,8 @@ const contests = {
     scope: "local_district",
     data: "map_data/durham_county_board_of_education_district_02.geojson",
     bounds: [
-      [-78.9583799916683, 35.90250000038127],
-      [-78.8857599916494, 36.03723999993787],
+      [-78.95831399107372, 35.902500000388855],
+      [-78.88596299078158, 36.03723999993787],
     ],
     participatingCounties: ["DURHAM"],
     focusMaskData: "map_data/durham_county_board_of_education_district_02_focus_mask.geojson",
@@ -301,8 +301,8 @@ const contests = {
     scope: "countywide",
     data: "map_data/graham_county_sheriff_rep.geojson",
     bounds: [
-      [-84.03888099163704, 35.216893000137176],
-      [-83.58238599085233, 35.466513999923585],
+      [-84.03888099163704, 35.21691200003398],
+      [-83.58238599085233, 35.46646700062739],
     ],
     participatingCounties: ["GRAHAM"],
     focusMaskData: "map_data/graham_county_sheriff_rep_focus_mask.geojson",

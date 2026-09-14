@@ -5,6 +5,7 @@ def export_geojson(
     gdf,
     filepath,
     columns=None,
+    simplify=False,
 ):
     """
     Export a GeoDataFrame to GeoJSON for web mapping.
@@ -22,6 +23,12 @@ def export_geojson(
     columns : list, optional
         Columns to keep before export.
         Geometry is always preserved.
+
+    simplify : bool, default False
+        Simplify geometry before export (see
+        src/simplify_geography.py). Off by default — opt in per call
+        site, since it's only worth the extra processing time for
+        large precinct-level exports.
     """
 
     filepath = Path(filepath)
@@ -35,6 +42,11 @@ def export_geojson(
             keep_columns.append("geometry")
 
         web_gdf = web_gdf[keep_columns]
+
+    if simplify:
+        from src.simplify_geography import simplify_geodataframe
+
+        web_gdf = simplify_geodataframe(web_gdf)
 
     filepath.parent.mkdir(
         parents=True,

@@ -78,4 +78,5 @@ def build_statewide_map(
         mapped,
         output_file,
         columns=web_columns,
+        simplify=True,
     )

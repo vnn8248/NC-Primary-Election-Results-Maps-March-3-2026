@@ -98,4 +98,5 @@ def build_countywide_map(
         mapped,
         output_file,
         columns=web_columns,
+        simplify=True,
     )

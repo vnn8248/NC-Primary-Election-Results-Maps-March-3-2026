@@ -1,12 +1,15 @@
 """
 Shared read/render/write helpers for js/contests.js.
 
-An entry's `results` array (candidate/votes/share) is always safe to
-regenerate from a contest-summary CSV. Everything else
-(title/subtitle/data/bounds/candidates) is treated as authoritative
-once it exists in the file — upsert_contest only replaces `results`
-for a key that's already present, and inserts a brand new full entry
-for a key that isn't.
+Every field except `title`/`subtitle` is mechanically derived from a
+pipeline run, so it's always safe to regenerate:
+`update_derived_fields` (used by scripts/run_contest.py, which knows
+the full pipeline output) refreshes everything from `scope` through
+`results`, leaving only `title`/`subtitle` — the one genuinely
+editorial, hand-tweakable field — untouched. `update_results` (used by
+scripts/update_contest_results.py, which only has a CSV) narrowly
+refreshes just `results` for tools that don't have the rest of the
+pipeline output on hand.
 """
 
 import json
@@ -86,20 +89,75 @@ def render_bounds_block(bounds):
     ])
 
 
-def render_entry(key, title, subtitle, data, bounds, candidates, results):
+def render_participating_counties(participating_counties):
+    if participating_counties is None:
+        return "    participatingCounties: null,"
+
+    county_list = ", ".join(js_string(c) for c in participating_counties)
+
+    return f"    participatingCounties: [{county_list}],"
+
+
+def render_body(scope, data, bounds, participating_counties, candidates, results):
+    """
+    Everything in an entry except `title`/`subtitle` — the mechanically
+    derived fields, regenerated wholesale on every pipeline run.
+    """
+
+    return "\n".join([
+        f"    scope: {js_string(scope)},",
+        f"    data: {js_string(data)},",
+        render_bounds_block(bounds),
+        render_participating_counties(participating_counties),
+        "    candidates: {",
+        render_candidates_block(candidates),
+        "    },",
+        "    results: [",
+        render_results_block(results),
+        "    ],",
+    ])
+
+
+def render_entry(key, title, subtitle, scope, data, bounds, participating_counties, candidates, results):
+    body = render_body(scope, data, bounds, participating_counties, candidates, results)
+
     return (
         f"  {key}: {{\n"
         f"    title: {js_string(title)},\n"
         f"    subtitle: {js_string(subtitle)},\n"
-        f"    data: {js_string(data)},\n"
-        f"{render_bounds_block(bounds)}\n"
-        f"    candidates: {{\n"
-        f"{render_candidates_block(candidates)}\n"
-        f"    }},\n"
-        f"    results: [\n"
-        f"{render_results_block(results)}\n"
-        f"    ],\n"
+        f"{body}\n"
         f"  }},\n"
+    )
+
+
+def update_derived_fields(text, key, scope, data, bounds, participating_counties, candidates, results):
+    """
+    Replace everything after `title`/`subtitle` for an existing entry
+    (scope, data, bounds, participatingCounties, candidates, results).
+    """
+
+    pattern = re.compile(
+        r"(\n  " + re.escape(key) + r": \{\n"
+        r"    title: .*?,\n"
+        r"    subtitle: .*?,\n)"
+        r".*?"
+        r"(\n  \},\n)",
+        flags=re.DOTALL,
+    )
+
+    match = pattern.search(text)
+
+    if not match:
+        raise ValueError(f"Could not locate entry '{key}' in {CONTESTS_JS}")
+
+    body = render_body(scope, data, bounds, participating_counties, candidates, results)
+
+    return (
+        text[: match.start()]
+        + match.group(1)
+        + body
+        + match.group(2)
+        + text[match.end():]
     )
 
 
@@ -136,16 +194,20 @@ def insert_entry(text, entry_text):
     return text[: idx + 1] + entry_text + text[idx + 1:]
 
 
-def upsert_contest(text, key, title, subtitle, data, bounds, candidates, results):
+def upsert_contest(text, key, title, subtitle, scope, data, bounds, participating_counties, candidates, results):
     """
-    Update `results` in place if `key` already has an entry; otherwise
-    insert a brand new full entry.
+    Refresh the derived fields in place if `key` already has an entry
+    (title/subtitle untouched); otherwise insert a brand new full entry.
     """
 
     if key in entry_keys(text):
-        return update_results(text, key, results)
+        return update_derived_fields(
+            text, key, scope, data, bounds, participating_counties, candidates, results
+        )
 
-    entry_text = render_entry(key, title, subtitle, data, bounds, candidates, results)
+    entry_text = render_entry(
+        key, title, subtitle, scope, data, bounds, participating_counties, candidates, results
+    )
 
     return insert_entry(text, entry_text)
 

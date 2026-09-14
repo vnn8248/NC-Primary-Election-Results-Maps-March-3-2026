@@ -2,15 +2,17 @@ const contests = {
   us_house_of_representatives_district_04_dem: {
     title: "U.S. House District 4",
     subtitle: "Democratic Primary",
+    scope: "district",
     data: "map_data/us_house_of_representatives_district_04_dem.geojson",
     bounds: [
       [-79.37018899068106, 35.54047599983429],
       [-78.69931599106128, 36.243444999723174],
     ],
+    participatingCounties: ["CHATHAM", "DURHAM", "ORANGE", "WAKE"],
     candidates: {
-      "Nida Allam": ["#e3974e", "#eea941", "#e7c557"],
-      "Valerie P. Foushee": ["#af89be", "#b29fde", "#b8b0cb"],
-      "Mary Patterson": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
+      "Valerie P. Foushee": ["#e3974e", "#eea941", "#e7c557"],
+      "Nida Allam": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
+      "Mary Patterson": ["#af89be", "#b29fde", "#b8b0cb"],
     },
     results: [
       {
@@ -33,14 +35,16 @@ const contests = {
   nc_state_senate_district_17_rep: {
     title: "N.C. State Senate District 17",
     subtitle: "Republican Primary",
+    scope: "district",
     data: "map_data/nc_state_senate_district_17_rep.geojson",
     bounds: [
       [-78.95593299087653, 35.62147399985783],
       [-78.74121599094627, 35.92755199976352],
     ],
+    participatingCounties: ["WAKE"],
     candidates: {
       "Shirley Johnson": ["#e3974e", "#eea941", "#e7c557"],
-      "Sarah Al-Baghdadi": ["#af89be", "#b29fde", "#b8b0cb"],
+      "Sarah Al-Baghdadi": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
     },
     results: [
       {
@@ -58,14 +62,16 @@ const contests = {
   nc_state_senate_district_18_rep: {
     title: "N.C. State Senate District 18",
     subtitle: "Republican Primary",
+    scope: "district",
     data: "map_data/nc_state_senate_district_18_rep.geojson",
     bounds: [
       [-78.80762299092058, 35.783509999663366],
       [-78.25371099138387, 36.54254100036947],
     ],
+    participatingCounties: ["GRANVILLE", "WAKE"],
     candidates: {
       "Chris Stock": ["#e3974e", "#eea941", "#e7c557"],
-      "Cheryl Caulfield": ["#af89be", "#b29fde", "#b8b0cb"],
+      "Cheryl Caulfield": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
     },
     results: [
       {
@@ -83,14 +89,16 @@ const contests = {
   nc_house_of_representatives_district_035_rep: {
     title: "N.C. House District 35",
     subtitle: "Republican Primary",
+    scope: "district",
     data: "map_data/nc_house_of_representatives_district_035_rep.geojson",
     bounds: [
       [-78.75428399092935, 35.78358200027878],
       [-78.31048799160175, 36.076442999977246],
     ],
+    participatingCounties: ["WAKE"],
     candidates: {
       "Mike Schietzelt": ["#e3974e", "#eea941", "#e7c557"],
-      "Michele Joyner-Dinwiddie": ["#af89be", "#b29fde", "#b8b0cb"],
+      "Michele Joyner-Dinwiddie": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
     },
     results: [
       {
@@ -108,11 +116,13 @@ const contests = {
   us_senate_rep: {
     title: "U.S. Senate Republican Primary",
     subtitle: "Republican Primary",
+    scope: "statewide",
     data: "map_data/us_senate_rep.geojson",
     bounds: [
       [-84.3218209914704, 33.75287799999573],
       [-75.4001189911457, 36.588136999894786],
     ],
+    participatingCounties: null,
     candidates: {
       "Michael Whatley": ["#e3974e", "#eea941", "#e7c557"],
       "Donald M. (Don) Brown": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -163,11 +173,13 @@ const contests = {
   us_senate_dem: {
     title: "U.S. Senate Democratic Primary",
     subtitle: "Democratic Primary",
+    scope: "statewide",
     data: "map_data/us_senate_dem.geojson",
     bounds: [
       [-84.3218209914704, 33.75287799999573],
       [-75.4001189911457, 36.588136999894786],
     ],
+    participatingCounties: null,
     candidates: {
       "Roy Cooper": ["#e3974e", "#eea941", "#e7c557"],
       "Justin E. Dues": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -212,11 +224,13 @@ const contests = {
   durham_county_sheriff_dem: {
     title: "Durham County Sheriff",
     subtitle: "Democratic Primary",
+    scope: "countywide",
     data: "map_data/durham_county_sheriff_dem.geojson",
     bounds: [
       [-79.01630499067694, 35.8632100000935],
       [-78.69931599106128, 36.239319999857365],
     ],
+    participatingCounties: ["DURHAM"],
     candidates: {
       "Clarence F. Birkhead": ["#e3974e", "#eea941", "#e7c557"],
       "Johnny D. Hawkins": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -237,11 +251,13 @@ const contests = {
   durham_county_board_of_education_district_02: {
     title: "Durham County Board Of Education District 02",
     subtitle: "Vote For 1",
+    scope: "local_district",
     data: "map_data/durham_county_board_of_education_district_02.geojson",
     bounds: [
       [-78.9583799916683, 35.90250000038127],
       [-78.8857599916494, 36.03723999993787],
     ],
+    participatingCounties: ["DURHAM"],
     candidates: {
       "Nadeen Bir": ["#e3974e", "#eea941", "#e7c557"],
       "Bettina Umstead": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -274,11 +290,13 @@ const contests = {
   graham_county_sheriff_rep: {
     title: "Graham County Sheriff",
     subtitle: "Republican Primary",
+    scope: "countywide",
     data: "map_data/graham_county_sheriff_rep.geojson",
     bounds: [
       [-84.03888099163704, 35.216893000137176],
       [-83.58238599085233, 35.466513999923585],
     ],
+    participatingCounties: ["GRAHAM"],
     candidates: {
       "Caleb Stiles": ["#e3974e", "#eea941", "#e7c557"],
       "Cody George": ["#5bc7a3", "#77e5c1", "#a0e6a1"],

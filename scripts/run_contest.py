@@ -3,9 +3,10 @@ Run a pipeline for one contest and create/update its js/contests.js entry
 in a single step.
 
 For a contest with no entry yet, this generates the full entry (title,
-subtitle, data path, bounds, candidate colors assigned by descending
-vote-total rank, results). For a contest that already has an entry, only
-`results` is refreshed — hand-edited metadata is left alone.
+subtitle, scope, data path, bounds, participating counties, candidate
+colors assigned by descending vote-total rank, results). For a contest
+that already has an entry, everything except `title`/`subtitle` is
+refreshed — those two are the only hand-tweakable fields.
 
 Usage:
     python scripts/run_contest.py \\
@@ -111,6 +112,23 @@ def compute_bounds(web_precincts):
     return [[west, south], [east, north]]
 
 
+def compute_participating_counties(pipeline, county, web_precincts):
+    """
+    None means "all counties" (statewide). Otherwise a sorted list of
+    the counties this contest actually has results in.
+    """
+
+    if pipeline == "statewide":
+        return None
+
+    if pipeline in COUNTY_SCOPED:
+        return [county.upper()]
+
+    participated = web_precincts[web_precincts["participated"]]
+
+    return sorted(participated["county"].dropna().unique().tolist())
+
+
 def build_candidates_and_results(contest_summary_file):
     df = pd.read_csv(contest_summary_file)
 
@@ -145,6 +163,7 @@ def run_contest(contest_name, pipeline, county, vote_for):
     )
 
     bounds = compute_bounds(web_precincts)
+    participating_counties = compute_participating_counties(pipeline, county, web_precincts)
     candidates, results = build_candidates_and_results(contest_summary_file)
     title, subtitle = format_contest_name(contest_name, vote_for)
     data = f"map_data/{key}.geojson"
@@ -153,12 +172,13 @@ def run_contest(contest_name, pipeline, county, vote_for):
     is_new = key not in contests_js.entry_keys(text)
 
     text = contests_js.upsert_contest(
-        text, key, title, subtitle, data, bounds, candidates, results
+        text, key, title, subtitle, pipeline, data, bounds,
+        participating_counties, candidates, results,
     )
 
     contests_js.write_contests_js(text)
 
-    action = "Created new entry" if is_new else "Updated results for"
+    action = "Created new entry" if is_new else "Updated"
     print(f"{action} '{key}' ({title} — {subtitle})")
 
 

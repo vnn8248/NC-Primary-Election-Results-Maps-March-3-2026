@@ -9,6 +9,7 @@ const contests = {
       [-78.69931599106128, 36.243444999723174],
     ],
     participatingCounties: ["CHATHAM", "DURHAM", "ORANGE", "WAKE"],
+    focusMaskData: "map_data/us_house_of_representatives_district_04_dem_focus_mask.geojson",
     candidates: {
       "Valerie P. Foushee": ["#e3974e", "#eea941", "#e7c557"],
       "Nida Allam": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -42,6 +43,7 @@ const contests = {
       [-78.74121599094627, 35.92755199976352],
     ],
     participatingCounties: ["WAKE"],
+    focusMaskData: "map_data/nc_state_senate_district_17_rep_focus_mask.geojson",
     candidates: {
       "Shirley Johnson": ["#e3974e", "#eea941", "#e7c557"],
       "Sarah Al-Baghdadi": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -69,6 +71,7 @@ const contests = {
       [-78.25371099138387, 36.54254100036947],
     ],
     participatingCounties: ["GRANVILLE", "WAKE"],
+    focusMaskData: "map_data/nc_state_senate_district_18_rep_focus_mask.geojson",
     candidates: {
       "Chris Stock": ["#e3974e", "#eea941", "#e7c557"],
       "Cheryl Caulfield": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -96,6 +99,7 @@ const contests = {
       [-78.31048799160175, 36.076442999977246],
     ],
     participatingCounties: ["WAKE"],
+    focusMaskData: "map_data/nc_house_of_representatives_district_035_rep_focus_mask.geojson",
     candidates: {
       "Mike Schietzelt": ["#e3974e", "#eea941", "#e7c557"],
       "Michele Joyner-Dinwiddie": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -123,6 +127,7 @@ const contests = {
       [-75.4001189911457, 36.588136999894786],
     ],
     participatingCounties: null,
+    focusMaskData: null,
     candidates: {
       "Michael Whatley": ["#e3974e", "#eea941", "#e7c557"],
       "Donald M. (Don) Brown": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -180,6 +185,7 @@ const contests = {
       [-75.4001189911457, 36.588136999894786],
     ],
     participatingCounties: null,
+    focusMaskData: null,
     candidates: {
       "Roy Cooper": ["#e3974e", "#eea941", "#e7c557"],
       "Justin E. Dues": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -231,6 +237,7 @@ const contests = {
       [-78.69931599106128, 36.239319999857365],
     ],
     participatingCounties: ["DURHAM"],
+    focusMaskData: "map_data/durham_county_sheriff_dem_focus_mask.geojson",
     candidates: {
       "Clarence F. Birkhead": ["#e3974e", "#eea941", "#e7c557"],
       "Johnny D. Hawkins": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -258,6 +265,7 @@ const contests = {
       [-78.8857599916494, 36.03723999993787],
     ],
     participatingCounties: ["DURHAM"],
+    focusMaskData: "map_data/durham_county_board_of_education_district_02_focus_mask.geojson",
     candidates: {
       "Nadeen Bir": ["#e3974e", "#eea941", "#e7c557"],
       "Bettina Umstead": ["#5bc7a3", "#77e5c1", "#a0e6a1"],
@@ -297,6 +305,7 @@ const contests = {
       [-83.58238599085233, 35.466513999923585],
     ],
     participatingCounties: ["GRAHAM"],
+    focusMaskData: "map_data/graham_county_sheriff_rep_focus_mask.geojson",
     candidates: {
       "Caleb Stiles": ["#e3974e", "#eea941", "#e7c557"],
       "Cody George": ["#5bc7a3", "#77e5c1", "#a0e6a1"],

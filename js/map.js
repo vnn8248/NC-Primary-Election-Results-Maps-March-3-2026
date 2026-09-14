@@ -34,21 +34,6 @@ function countyDisplayName(county) {
     .join(" ");
 }
 
-// Fetched once and reused both as the county-borders source data and
-// as the shapes behind the focus mask, rather than fetching this
-// (large) file twice.
-const countyBordersPromise = fetch("map_data/county_borders.geojson").then(
-  (response) => response.json(),
-);
-
-let countyFeaturesByName = null;
-
-countyBordersPromise.then((data) => {
-  countyFeaturesByName = new Map(
-    data.features.map((feature) => [feature.properties.county_nam, feature]),
-  );
-});
-
 const countyFilter = getCountyFilter();
 
 let contestId = "nc_state_senate_district_18_rep";
@@ -100,7 +85,7 @@ const map = new mapboxgl.Map({
   maxZoom: 16,
 });
 
-map.on("load", async () => {
+map.on("load", () => {
   buildContestSelector();
   // 1. Customize basemap
 
@@ -110,13 +95,10 @@ map.on("load", async () => {
     data: contest.data,
   });
 
-  // 2b. Add county borders source (reusing the same fetch the focus
-  // mask uses, rather than letting Mapbox fetch this large file again)
-  const countyBordersData = await countyBordersPromise;
-
+  // 2b. Add county borders source
   map.addSource("counties", {
     type: "geojson",
-    data: countyBordersData,
+    data: "map_data/county_borders.geojson",
   });
 
   // 3. Add precinct fill
@@ -472,8 +454,8 @@ const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
 // map at any zoom the app allows), not precision.
 const FOCUS_MASK_OUTER_BBOX = [-90, 30, -70, 40];
 
-// A county polygon's exterior ring(s), reversed so the fill renderer
-// treats them as holes (cutouts) rather than filled area.
+// A polygon's exterior ring(s), reversed so the fill renderer treats
+// them as holes (cutouts) rather than filled area.
 function exteriorRingsAsHoles(geometry) {
   if (geometry.type === "Polygon") {
     return [geometry.coordinates[0].slice().reverse()];
@@ -486,12 +468,11 @@ function exteriorRingsAsHoles(geometry) {
   return [];
 }
 
-// The spotlight hole is the exact union shape of the participating
-// counties — same source data as the county-borders layer, so the
-// mask edge lines up with the county border line itself.
-function focusMaskFeature(participatingCounties) {
-  if (!countyFeaturesByName) return null;
-
+// Wraps a precomputed shape (already dissolved server-side — see
+// scripts/run_contest.py's compute_focus_mask, which unions the
+// participating counties with no internal seams) in a big outer box
+// so it reads as a hole cut out of the veil.
+function focusMaskFeature(geometry) {
   const [outerWest, outerSouth, outerEast, outerNorth] = FOCUS_MASK_OUTER_BBOX;
 
   const outerRing = [
@@ -502,11 +483,7 @@ function focusMaskFeature(participatingCounties) {
     [outerWest, outerSouth],
   ];
 
-  const holes = participatingCounties.flatMap((county) => {
-    const feature = countyFeaturesByName.get(county);
-
-    return feature ? exteriorRingsAsHoles(feature.geometry) : [];
-  });
+  const holes = exteriorRingsAsHoles(geometry);
 
   if (holes.length === 0) return null;
 
@@ -520,26 +497,43 @@ function focusMaskFeature(participatingCounties) {
   };
 }
 
+const focusMaskGeometryCache = new Map();
+
+function loadFocusMaskGeometry(url) {
+  if (!focusMaskGeometryCache.has(url)) {
+    focusMaskGeometryCache.set(
+      url,
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => data.features[0].geometry),
+    );
+  }
+
+  return focusMaskGeometryCache.get(url);
+}
+
+// Guards against an in-flight fetch for a previously-selected contest
+// resolving after a newer selection and clobbering its mask.
+let focusMaskRequestId = 0;
+
 function updateFocusMask(contest) {
   const source = map.getSource("focus-mask");
 
   if (!source) return;
 
+  const requestId = ++focusMaskRequestId;
+
   // Statewide contests: every county is in play, nothing to mute.
-  if (!contest.participatingCounties) {
+  if (!contest.focusMaskData) {
     source.setData(EMPTY_FEATURE_COLLECTION);
     return;
   }
 
-  // County shapes may not have finished loading yet — retry once they have.
-  if (!countyFeaturesByName) {
-    countyBordersPromise.then(() => updateFocusMask(contest));
-    return;
-  }
+  loadFocusMaskGeometry(contest.focusMaskData).then((geometry) => {
+    if (requestId !== focusMaskRequestId) return;
 
-  const feature = focusMaskFeature(contest.participatingCounties);
-
-  source.setData(feature || EMPTY_FEATURE_COLLECTION);
+    source.setData(focusMaskFeature(geometry) || EMPTY_FEATURE_COLLECTION);
+  });
 }
 
 function buildContestSelector() {

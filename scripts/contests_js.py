@@ -41,6 +41,10 @@ def js_string(value):
     return json.dumps(value, ensure_ascii=False)
 
 
+def js_string_or_null(value):
+    return "null" if value is None else js_string(value)
+
+
 def entry_keys(text):
     return set(ENTRY_KEY_PATTERN.findall(text))
 
@@ -98,7 +102,7 @@ def render_participating_counties(participating_counties):
     return f"    participatingCounties: [{county_list}],"
 
 
-def render_body(scope, data, bounds, participating_counties, candidates, results):
+def render_body(scope, data, bounds, participating_counties, focus_mask_data, candidates, results):
     """
     Everything in an entry except `title`/`subtitle` — the mechanically
     derived fields, regenerated wholesale on every pipeline run.
@@ -109,6 +113,7 @@ def render_body(scope, data, bounds, participating_counties, candidates, results
         f"    data: {js_string(data)},",
         render_bounds_block(bounds),
         render_participating_counties(participating_counties),
+        f"    focusMaskData: {js_string_or_null(focus_mask_data)},",
         "    candidates: {",
         render_candidates_block(candidates),
         "    },",
@@ -118,8 +123,8 @@ def render_body(scope, data, bounds, participating_counties, candidates, results
     ])
 
 
-def render_entry(key, title, subtitle, scope, data, bounds, participating_counties, candidates, results):
-    body = render_body(scope, data, bounds, participating_counties, candidates, results)
+def render_entry(key, title, subtitle, scope, data, bounds, participating_counties, focus_mask_data, candidates, results):
+    body = render_body(scope, data, bounds, participating_counties, focus_mask_data, candidates, results)
 
     return (
         f"  {key}: {{\n"
@@ -130,10 +135,11 @@ def render_entry(key, title, subtitle, scope, data, bounds, participating_counti
     )
 
 
-def update_derived_fields(text, key, scope, data, bounds, participating_counties, candidates, results):
+def update_derived_fields(text, key, scope, data, bounds, participating_counties, focus_mask_data, candidates, results):
     """
     Replace everything after `title`/`subtitle` for an existing entry
-    (scope, data, bounds, participatingCounties, candidates, results).
+    (scope, data, bounds, participatingCounties, focusMaskData,
+    candidates, results).
     """
 
     pattern = re.compile(
@@ -150,7 +156,7 @@ def update_derived_fields(text, key, scope, data, bounds, participating_counties
     if not match:
         raise ValueError(f"Could not locate entry '{key}' in {CONTESTS_JS}")
 
-    body = render_body(scope, data, bounds, participating_counties, candidates, results)
+    body = render_body(scope, data, bounds, participating_counties, focus_mask_data, candidates, results)
 
     return (
         text[: match.start()]
@@ -194,7 +200,10 @@ def insert_entry(text, entry_text):
     return text[: idx + 1] + entry_text + text[idx + 1:]
 
 
-def upsert_contest(text, key, title, subtitle, scope, data, bounds, participating_counties, candidates, results):
+def upsert_contest(
+    text, key, title, subtitle, scope, data, bounds,
+    participating_counties, focus_mask_data, candidates, results,
+):
     """
     Refresh the derived fields in place if `key` already has an entry
     (title/subtitle untouched); otherwise insert a brand new full entry.
@@ -202,11 +211,13 @@ def upsert_contest(text, key, title, subtitle, scope, data, bounds, participatin
 
     if key in entry_keys(text):
         return update_derived_fields(
-            text, key, scope, data, bounds, participating_counties, candidates, results
+            text, key, scope, data, bounds, participating_counties,
+            focus_mask_data, candidates, results,
         )
 
     entry_text = render_entry(
-        key, title, subtitle, scope, data, bounds, participating_counties, candidates, results
+        key, title, subtitle, scope, data, bounds,
+        participating_counties, focus_mask_data, candidates, results,
     )
 
     return insert_entry(text, entry_text)

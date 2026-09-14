@@ -21,8 +21,10 @@ Usage:
 
 import argparse
 import sys
+import warnings
 from pathlib import Path
 
+import geopandas as gpd
 import pandas as pd
 import pydash
 
@@ -34,6 +36,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from scripts import contests_js
 from scripts.generators.naming import format_contest_name
 from scripts.generators.palette import colors_for_rank
+from src.export_geojson import export_geojson
 
 from pipelines.statewide import build_statewide_map
 from pipelines.district import build_district_map
@@ -52,6 +55,8 @@ SHAPEFILE = (
 )
 
 CROSSWALK_FILE = PROJECT_ROOT / "data" / "crosswalks" / "precinct_crosswalk_2026.csv"
+
+COUNTY_BORDERS_FILE = PROJECT_ROOT / "map_data" / "county_borders.geojson"
 
 WEB_COLUMNS = [
     "county",
@@ -129,6 +134,50 @@ def compute_participating_counties(pipeline, county, web_precincts):
     return sorted(participated["county"].dropna().unique().tolist())
 
 
+
+# A plain dissolve leaves hundreds of sliver holes where adjacent
+# county polygons don't share byte-identical boundary coordinates
+# (small digitization mismatches in the source data). Buffering out by
+# a tiny amount before unioning, then back in by the same amount,
+# closes those slivers without visibly changing the shape.
+FOCUS_MASK_GAP_CLOSING_BUFFER = 0.0002  # ~20m, imperceptible at any map zoom
+
+
+def compute_focus_mask(participating_counties, key):
+    """
+    Dissolve the participating counties into a single shape (no
+    internal county-county seams) for the map's focus-mask overlay.
+    None for statewide contests, where every county is in play.
+    """
+
+    if participating_counties is None:
+        return None
+
+    counties_gdf = gpd.read_file(COUNTY_BORDERS_FILE)
+
+    subset = counties_gdf[counties_gdf["county_nam"].isin(participating_counties)]
+
+    with warnings.catch_warnings():
+        # Deliberately buffering in degrees, not meters — the buffer
+        # only needs to be "small," not metrically precise.
+        warnings.filterwarnings("ignore", message="Geometry is in a geographic CRS")
+
+        merged = (
+            subset.geometry
+            .buffer(FOCUS_MASK_GAP_CLOSING_BUFFER)
+            .union_all()
+            .buffer(-FOCUS_MASK_GAP_CLOSING_BUFFER)
+        )
+
+    dissolved = gpd.GeoDataFrame(geometry=[merged], crs=counties_gdf.crs)
+
+    output_file = PROJECT_ROOT / "map_data" / f"{key}_focus_mask.geojson"
+
+    export_geojson(dissolved, output_file)
+
+    return f"map_data/{key}_focus_mask.geojson"
+
+
 def build_candidates_and_results(contest_summary_file):
     df = pd.read_csv(contest_summary_file)
 
@@ -164,6 +213,7 @@ def run_contest(contest_name, pipeline, county, vote_for):
 
     bounds = compute_bounds(web_precincts)
     participating_counties = compute_participating_counties(pipeline, county, web_precincts)
+    focus_mask_data = compute_focus_mask(participating_counties, key)
     candidates, results = build_candidates_and_results(contest_summary_file)
     title, subtitle = format_contest_name(contest_name, vote_for)
     data = f"map_data/{key}.geojson"
@@ -173,7 +223,7 @@ def run_contest(contest_name, pipeline, county, vote_for):
 
     text = contests_js.upsert_contest(
         text, key, title, subtitle, pipeline, data, bounds,
-        participating_counties, candidates, results,
+        participating_counties, focus_mask_data, candidates, results,
     )
 
     contests_js.write_contests_js(text)

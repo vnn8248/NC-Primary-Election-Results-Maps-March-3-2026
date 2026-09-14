@@ -332,6 +332,20 @@ map.on("load", () => {
   activePopup?.on("close", () => {
     activePopup = null;
   });
+
+  // Fit the initial view only after all label/paint overrides above are
+  // applied — doing this before "load" (or before the overrides run)
+  // lets Mapbox render the first frame's labels with the base style's
+  // default colors, which can stick until the next zoom/pan forces a
+  // re-render.
+  const triangleBounds = [
+    [-79.25, 35.55], // southwest
+    [-78.45, 36.25], // northeast
+  ];
+
+  map.fitBounds(triangleBounds, {
+    padding: 40,
+  });
 });
 
 // Highlight precinct border on hover
@@ -373,15 +387,6 @@ map.addControl(
   }),
   "bottom-right",
 );
-
-const triangleBounds = [
-  [-79.25, 35.55], // southwest
-  [-78.45, 36.25], // northeast
-];
-
-map.fitBounds(triangleBounds, {
-  padding: 40,
-});
 
 document.getElementById("contest-title").textContent = contest.title;
 

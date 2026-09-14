@@ -42,6 +42,12 @@ map.on("load", () => {
     data: contest.data,
   });
 
+  // 2b. Add county borders source
+  map.addSource("counties", {
+    type: "geojson",
+    data: "map_data/county_borders.geojson",
+  });
+
   // 3. Add precinct fill
   map.addLayer({
     id: "precinct-fills",
@@ -222,18 +228,20 @@ map.on("load", () => {
   map.moveLayer("major-road-labels");
   map.moveLayer("precinct-hover");
 
-  //   Don't have county borders in the data, so this is commented out for now. If you add a county borders layer, uncomment this code to add it to the map.
-  //   map.addLayer({
-  //     id: "county-borders",
-  //     type: "line",
-  //     source: "counties",
+  map.addLayer({
+    id: "county-borders",
+    type: "line",
+    source: "counties",
 
-  //     paint: {
-  //       "line-color": "#000000",
-  //       "line-width": 2,
-  //       "line-opacity": 0.9,
-  //     },
-  //   });
+    paint: {
+      "line-color": "#000000",
+      "line-width": 1.25,
+      "line-opacity": 0.55,
+    },
+  });
+
+  // Keep county borders above precinct fills, but below roads/labels
+  map.moveLayer("county-borders", "major-roads");
 
   // 6. Other map setup
   map.on("mouseenter", "precinct-fills", (e) => {

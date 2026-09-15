@@ -566,6 +566,8 @@ function buildContestSelector() {
 
     optgroup.label = SCOPE_LABELS[scope] || scope;
 
+    entries.sort(([, a], [, b]) => a.title.localeCompare(b.title));
+
     for (const [id, config] of entries) {
       const option = document.createElement("option");
 

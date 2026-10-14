@@ -242,47 +242,49 @@ map.on("load", () => {
 
   map.setPaintProperty("road-simple", "line-color", "#8a8a8a");
 
-  map.setPaintProperty("settlement-major-label", "text-color", "#000000");
+  // 5. Settlement labels: replaced with black copies, added on top.
+  // Recoloring the base style's layers with setPaintProperty isn't
+  // reliable — light-v11 colors these per feature (light grey for
+  // smaller places), and tiles already built with those colors keep
+  // them after the override, so some names showed up near-white when
+  // zooming/panning. Fresh layers never carry the old colors.
+  replaceSettlementLabels("settlement-subdivision-label", {
+    paint: { "text-halo-width": 1 },
+  });
 
-  map.setPaintProperty("settlement-major-label", "text-halo-color", "#ffffff");
+  // Stops at zoom 13, where settlement-major-label takes over every
+  // town (see showAllFromZoom below) — without the cutoff, names would
+  // be drawn twice.
+  replaceSettlementLabels("settlement-minor-label", {
+    paint: { "text-halo-width": 1.5 },
+    keepMaxzoom: true,
+  });
 
-  map.setPaintProperty("settlement-major-label", "text-halo-width", 1);
+  replaceSettlementLabels("settlement-major-label", {
+    paint: { "text-halo-width": 1 },
 
-  map.setLayoutProperty("settlement-major-label", "text-size", [
-    "interpolate",
-    ["linear"],
-    ["zoom"],
+    layout: {
+      "text-size": [
+        "interpolate",
+        ["linear"],
+        ["zoom"],
 
-    7,
-    12,
-    9,
-    15,
-    11,
-    18,
-    13,
-    20,
-  ]);
+        7,
+        12,
+        9,
+        15,
+        11,
+        18,
+        13,
+        20,
+      ],
+    },
 
-  map.setPaintProperty("settlement-minor-label", "text-color", "#000000");
+    // light-v11 thins out town/city names from zoom 13 on (handing off
+    // to neighborhood labels); show every settlement from 13 up instead.
+    showAllFromZoom: 13,
+  });
 
-  map.setPaintProperty("settlement-minor-label", "text-halo-color", "#ffffff");
-
-  map.setPaintProperty("settlement-minor-label", "text-halo-width", 1.5);
-
-  map.setPaintProperty("settlement-subdivision-label", "text-color", "#000000");
-
-  map.setPaintProperty(
-    "settlement-subdivision-label",
-    "text-halo-color",
-    "#ffffff",
-  );
-
-  map.setPaintProperty("settlement-subdivision-label", "text-halo-width", 1);
-
-  // 5. Move labels to top
-  map.moveLayer("settlement-subdivision-label");
-  map.moveLayer("settlement-minor-label");
-  map.moveLayer("settlement-major-label");
   map.moveLayer("major-road-labels");
   map.moveLayer("precinct-hover");
 
@@ -448,6 +450,52 @@ map.addControl(
 document.getElementById("contest-title").textContent = contest.title;
 
 document.getElementById("contest-subtitle").textContent = contest.subtitle;
+
+// Swaps one of the base style's settlement label layers for a copy with
+// black text, no maxzoom unless keepMaxzoom (so names stay up to the
+// map's maxZoom) and any extra paint/layout overrides. Keeps the
+// original id so other code can keep referring to it.
+function replaceSettlementLabels(
+  id,
+  { paint = {}, layout = {}, showAllFromZoom, keepMaxzoom = false } = {},
+) {
+  const base = map.getStyle().layers.find((layer) => layer.id === id);
+  if (!base) return;
+
+  const { maxzoom, ...rest } = base;
+  let filter = base.filter;
+
+  // The base filter ends in a ["step", ["zoom"], ...] that picks which
+  // places show at each zoom. Cut it off at showAllFromZoom and show
+  // every place from there on.
+  if (showAllFromZoom !== undefined && filter?.[0] === "all") {
+    filter = filter.map((clause) => {
+      if (clause[0] !== "step" || clause[1][0] !== "zoom") return clause;
+
+      const step = clause.slice(0, 3);
+      for (let i = 3; i < clause.length; i += 2) {
+        if (clause[i] >= showAllFromZoom) break;
+        step.push(clause[i], clause[i + 1]);
+      }
+
+      return [...step, showAllFromZoom, true];
+    });
+  }
+
+  map.removeLayer(id);
+
+  map.addLayer({
+    ...(keepMaxzoom ? base : rest),
+    filter,
+    layout: { ...base.layout, ...layout },
+    paint: {
+      ...base.paint,
+      "text-color": "#000000",
+      "text-halo-color": "#ffffff",
+      ...paint,
+    },
+  });
+}
 
 const EMPTY_FEATURE_COLLECTION = { type: "FeatureCollection", features: [] };
 
